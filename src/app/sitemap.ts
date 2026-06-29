@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 import { TOOLS } from '@/lib/tools';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = 'https://pdfgeniuspro.com';
+  const base = 'https://www.pdfgeniuspro.com';
   const now = new Date();
 
   const toolUrls = TOOLS.map((tool) => ({

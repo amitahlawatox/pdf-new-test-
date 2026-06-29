@@ -13,7 +13,7 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://pdfgeniuspro.com'),
+  metadataBase: new URL('https://www.pdfgeniuspro.com'),
   title: {
     default: 'PDF Genius Pro — 31+ Free PDF Tools. 100% Private.',
     template: '%s | PDF Genius Pro',
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://pdfgeniuspro.com',
+    url: 'https://www.pdfgeniuspro.com',
     siteName: 'PDF Genius Pro',
     title: 'PDF Genius Pro — 31+ Free PDF Tools. 100% Private.',
     description: 'Professional PDF tools that run entirely in your browser. Your files never leave your device.',
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
     follow: true,
     googleBot: { index: true, follow: true, 'max-video-preview': -1, 'max-image-preview': 'large', 'max-snippet': -1 },
   },
-  alternates: { canonical: 'https://pdfgeniuspro.com' },
+  alternates: { canonical: 'https://www.pdfgeniuspro.com' },
 };
 
 export const viewport: Viewport = {
@@ -64,20 +64,20 @@ const siteJsonLd = {
   '@graph': [
     {
       '@type': 'WebSite',
-      '@id': 'https://pdfgeniuspro.com/#website',
-      url: 'https://pdfgeniuspro.com',
+      '@id': 'https://www.pdfgeniuspro.com/#website',
+      url: 'https://www.pdfgeniuspro.com',
       name: 'PDF Genius Pro',
       description: '31+ free PDF tools — merge, split, compress, convert and more. 100% private, no uploads.',
       potentialAction: {
         '@type': 'SearchAction',
-        target: { '@type': 'EntryPoint', urlTemplate: 'https://pdfgeniuspro.com/?q={search_term_string}' },
+        target: { '@type': 'EntryPoint', urlTemplate: 'https://www.pdfgeniuspro.com/?q={search_term_string}' },
         'query-input': 'required name=search_term_string',
       },
     },
     {
       '@type': 'WebApplication',
       name: 'PDF Genius Pro',
-      url: 'https://pdfgeniuspro.com',
+      url: 'https://www.pdfgeniuspro.com',
       applicationCategory: 'UtilitiesApplication',
       operatingSystem: 'Web Browser',
       offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
@@ -85,9 +85,9 @@ const siteJsonLd = {
     },
     {
       '@type': 'Organization',
-      '@id': 'https://pdfgeniuspro.com/#org',
+      '@id': 'https://www.pdfgeniuspro.com/#org',
       name: 'PDF Genius Pro',
-      url: 'https://pdfgeniuspro.com',
+      url: 'https://www.pdfgeniuspro.com',
     },
   ],
 };

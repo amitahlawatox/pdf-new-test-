@@ -10,12 +10,45 @@ import { Zap } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'PDF Genius Pro — 31+ Free PDF Tools. 100% Private.',
-  alternates: { canonical: 'https://pdfgeniuspro.com' },
+  alternates: { canonical: 'https://www.pdfgeniuspro.com' },
+};
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'Are these PDF tools really free?',
+      acceptedAnswer: { '@type': 'Answer', text: 'Yes. All 31+ tools are completely free with no hidden costs. We are supported by non-intrusive display advertising.' },
+    },
+    {
+      '@type': 'Question',
+      name: 'Do my PDF files get uploaded to a server?',
+      acceptedAnswer: { '@type': 'Answer', text: 'Never. Every PDF operation runs entirely in your browser using WebAssembly. You can verify this in DevTools → Network — you will see zero file upload requests.' },
+    },
+    {
+      '@type': 'Question',
+      name: 'Is there a PDF file size limit?',
+      acceptedAnswer: { '@type': 'Answer', text: "There are no artificial server-side limits. The practical limit is your device's available memory — typically 500MB+ for modern devices." },
+    },
+    {
+      '@type': 'Question',
+      name: 'Do I need to create an account to use PDF tools?',
+      acceptedAnswer: { '@type': 'Answer', text: 'No. There is no account system. Nothing to sign up for — just use the tools instantly.' },
+    },
+    {
+      '@type': 'Question',
+      name: 'Does PDF Genius Pro work on mobile?',
+      acceptedAnswer: { '@type': 'Answer', text: 'Yes. PDF Genius Pro is fully responsive and works on iOS Safari and Android Chrome with native file picker support.' },
+    },
+  ],
 };
 
 export default function HomePage() {
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
       {/* ─── HERO (Two-Column) ────────────────────────────────── */}
       <section
         style={{

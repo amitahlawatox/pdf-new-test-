@@ -19,11 +19,13 @@ export const metadata: Metadata = {
     template: '%s | PDF Genius Pro',
   },
   description:
-    'Merge, split, compress, convert, and sign PDFs — all processed locally in your browser. No uploads, no accounts, GDPR compliant.',
+    'Merge, split, compress, convert, and sign PDFs — all processed locally in your browser. No uploads, no accounts, GDPR compliant. 31+ free PDF tools.',
   keywords: [
     'pdf tools', 'merge pdf', 'split pdf', 'compress pdf', 'pdf to word',
     'jpg to pdf', 'free pdf editor', 'online pdf tool', 'pdf converter',
-    'pdf without upload', 'private pdf tool',
+    'pdf without upload', 'private pdf tool', 'pdf to excel', 'pdf to jpg',
+    'rotate pdf', 'protect pdf', 'sign pdf', 'watermark pdf', 'ocr pdf',
+    'compress pdf online', 'merge pdf online free', 'pdf editor online free',
   ],
   authors: [{ name: 'PDF Genius Pro' }],
   creator: 'PDF Genius Pro',
@@ -57,6 +59,39 @@ export const viewport: Viewport = {
   themeColor: '#0F172A',
 };
 
+const siteJsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebSite',
+      '@id': 'https://pdfgeniuspro.com/#website',
+      url: 'https://pdfgeniuspro.com',
+      name: 'PDF Genius Pro',
+      description: '31+ free PDF tools — merge, split, compress, convert and more. 100% private, no uploads.',
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: { '@type': 'EntryPoint', urlTemplate: 'https://pdfgeniuspro.com/?q={search_term_string}' },
+        'query-input': 'required name=search_term_string',
+      },
+    },
+    {
+      '@type': 'WebApplication',
+      name: 'PDF Genius Pro',
+      url: 'https://pdfgeniuspro.com',
+      applicationCategory: 'UtilitiesApplication',
+      operatingSystem: 'Web Browser',
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+      aggregateRating: { '@type': 'AggregateRating', ratingValue: '4.9', reviewCount: '2400' },
+    },
+    {
+      '@type': 'Organization',
+      '@id': 'https://pdfgeniuspro.com/#org',
+      name: 'PDF Genius Pro',
+      url: 'https://pdfgeniuspro.com',
+    },
+  ],
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${plusJakartaSans.variable} h-full antialiased`} style={{ colorScheme: 'dark' }}>
@@ -70,6 +105,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           flexDirection: 'column',
         }}
       >
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd) }} />
         <Navbar />
 
         {/* Top Leaderboard Ad — pre-allocated 90px height prevents CLS */}

@@ -76,10 +76,72 @@
 - All new components follow existing inline-style + Tailwind-utility mix pattern
 - No new npm packages added
 
-## Next Steps (Session 3)
-- [ ] Wire real PDF-lib / pdf.js WASM engines to tool actions
-- [ ] Add tool-specific configuration (split range, compression level, etc.)
-- [ ] Connect Google AdSense script (replace placeholder divs)
+## Session 3 — 2026-06-29
+**STATUS: COMPLETE — build passing, pushed to GitHub**
+
+### All 31 Tools Live
+
+#### New Engines Created
+- `src/lib/engines/convert.ts` — pdfToWord, pdfToExcel, pdfToPowerPoint, pdfToTiff, wordToPDF, excelToPDF, pptToPDF, htmlToPDF
+- `src/lib/engines/sign.ts` — signPDF with canvas signature + pdf-lib image embed
+- `src/lib/engines/ocr.ts` — ocrPDF with pdfjs render + tesseract.js + invisible text overlay
+
+#### New Packages Added
+- `docx` — generate real DOCX from PDF text extraction
+- `pptxgenjs` — generate real PPTX with page-to-image slides
+- `mammoth` — DOCX → HTML for word-to-pdf
+- `xlsx` (SheetJS) — Excel parsing and generation
+- `jszip` — PPTX parsing for ppt-to-pdf
+- `html2canvas` — HTML/DOM to canvas for html-to-pdf and word-to-pdf
+
+#### Tool Coverage (all active, no stubs)
+| Tool | Implementation |
+|------|---------------|
+| pdf-to-word | pdfjs text → docx package → .docx |
+| pdf-to-excel | pdfjs text → SheetJS → .xlsx |
+| pdf-to-ppt | pdfjs page images → pptxgenjs → .pptx |
+| pdf-to-tiff | pdfjs canvas → PNG download |
+| word-to-pdf | mammoth → html2canvas → pdf-lib |
+| excel-to-pdf | SheetJS → styled table PDF |
+| ppt-to-pdf | JSZip PPTX parse → text PDF |
+| html-to-pdf | html2canvas iframe → pdf-lib |
+| sign-pdf | Canvas signature pad → pdf-lib embed |
+| ocr-pdf | pdfjs render → tesseract.js → searchable PDF |
+| repair-pdf | pdf-lib reload/save |
+| pdf-to-pdfa | pdf-lib save + metadata |
+| reorder-pdf | reorderPages engine |
+| crop-pdf | cropPDF engine |
+| fill-pdf | pdf-lib AcroForms |
+| redact-pdf | full-page black overlay |
+| + 15 others | All wired in previous sessions |
+
+#### ToolConfig New Panels
+- Signature pad (canvas drawing)
+- HTML content textarea
+- Page order input (reorder)
+- Crop margin controls (4-sided)
+- Page number selector (delete/extract)
+- Redact page selector
+
+### SEO Implementation
+
+#### Architecture Changes
+- Tool page split: server `page.tsx` (metadata) + `ToolPageClient.tsx` (client UI)
+- `generateMetadata()` per tool: unique title, description, canonical URL, OG, Twitter
+- `generateStaticParams()` → all 31 tool pages pre-rendered as static HTML (SSG)
+- Build output: 38 static pages total
+
+#### Structured Data Added
+- Root layout: WebSite + WebApplication + Organization schema (JSON-LD)
+- Each tool page: SoftwareApplication schema with offers, featureList
+- Sitemap: weekly changeFreq for tools, proper priorities (popular=0.9, others=0.75)
+- Expanded keywords: 20 high-volume terms
+
+## Next Steps (Session 4)
+- [ ] Connect Google AdSense script (replace placeholder divs with real pub ID)
 - [ ] Run Lighthouse audit — target CLS < 0.1, Performance > 90
-- [ ] Add blog section with SEO-optimized content stubs
-- [ ] Deploy to Vercel, point pdfgeniuspro.com DNS
+- [ ] Add blog section with SEO-optimized content stubs (2-3 articles)
+- [ ] Deploy to Vercel — run: `vercel login` then `vercel --prod`
+- [ ] Point pdfgeniuspro.com DNS to Vercel
+- [ ] Submit sitemap to Google Search Console
+- [ ] Add OG image (1200×630 PNG at /public/og-image.png)

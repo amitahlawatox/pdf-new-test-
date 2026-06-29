@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useCallback, useRef } from 'react';
-import { Upload, Shield, Cpu, ArrowRight, FileText } from 'lucide-react';
+import { Upload, Shield, Cpu, ArrowRight, FileText, X } from 'lucide-react';
+
+const MAX_FILES = 10;
 
 type EngineState =
   | 'idle'
@@ -14,7 +16,7 @@ type EngineState =
 
 const STATE_LABELS: Record<EngineState, string> = {
   idle:       'LOCAL ENGINE: READY',
-  'drag-over':'DROP TO UPLOAD',
+  'drag-over':'DROP TO LOAD',
   loading:    'LOADING FILE...',
   ready:      'FILE LOADED',
   processing: 'PROCESSING LOCALLY...',
@@ -32,32 +34,45 @@ const STATE_COLORS: Record<EngineState, string> = {
   error:      '#EF4444',
 };
 
+interface LoadedFile {
+  name: string;
+  sizeMB: string;
+}
+
 export function HeroDropzone() {
   const [state, setState] = useState<EngineState>('idle');
-  const [fileName, setFileName] = useState<string | null>(null);
-  const [fileSize, setFileSize] = useState<string | null>(null);
+  const [files, setFiles] = useState<LoadedFile[]>([]);
+  const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const handleFile = useCallback((file: File) => {
-    if (!file.type.includes('pdf') && !file.name.endsWith('.pdf')) {
+  const handleFiles = useCallback((incoming: File[]) => {
+    const valid = incoming.filter(
+      (f) => f.type.includes('pdf') || f.name.toLowerCase().endsWith('.pdf'),
+    );
+    if (incoming.length > 0 && valid.length === 0) {
       setState('error');
+      setError('Only PDF files are supported here.');
       return;
     }
+    const combined = [...files, ...valid.map((f) => ({ name: f.name, sizeMB: (f.size / 1024 / 1024).toFixed(1) }))];
+    if (combined.length > MAX_FILES) {
+      setState('error');
+      setError(`Maximum ${MAX_FILES} files allowed.`);
+      return;
+    }
+    setError(null);
     setState('loading');
-    const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
-    setFileName(file.name);
-    setFileSize(sizeMB);
-    setTimeout(() => setState('ready'), 600);
-  }, []);
+    setFiles(combined);
+    setTimeout(() => setState('ready'), 500);
+  }, [files]);
 
   const onDrop = useCallback(
     (e: React.DragEvent) => {
       e.preventDefault();
       setState('idle');
-      const file = e.dataTransfer.files[0];
-      if (file) handleFile(file);
+      handleFiles(Array.from(e.dataTransfer.files));
     },
-    [handleFile],
+    [handleFiles],
   );
 
   const onDragOver = (e: React.DragEvent) => {
@@ -70,19 +85,29 @@ export function HeroDropzone() {
   };
 
   const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) handleFile(file);
+    if (e.target.files) handleFiles(Array.from(e.target.files));
+  };
+
+  const removeFile = (idx: number) => {
+    const updated = files.filter((_, i) => i !== idx);
+    setFiles(updated);
+    if (updated.length === 0) setState('idle');
+  };
+
+  const scrollToTools = () => {
+    document.getElementById('tools-grid')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   const isDragOver = state === 'drag-over';
   const stateColor = STATE_COLORS[state];
+  const hasFiles = files.length > 0;
 
   return (
-    <div className="w-full" style={{ maxWidth: '720px', margin: '0 auto' }}>
+    <div className="w-full">
       {/* State Machine Badge */}
-      <div className="flex items-center justify-center gap-3 mb-6">
+      <div className="flex items-center justify-center gap-3 mb-4">
         <div
-          className="flex items-center gap-2 px-4 py-2 rounded-full state-badge"
+          className="flex items-center gap-2 px-3 py-1.5 rounded-full"
           style={{
             background: `${stateColor}15`,
             border: `1px solid ${stateColor}30`,
@@ -90,18 +115,17 @@ export function HeroDropzone() {
         >
           <span
             style={{
-              width: 7,
-              height: 7,
+              width: 6,
+              height: 6,
               borderRadius: '50%',
               background: stateColor,
               display: 'inline-block',
-              boxShadow: `0 0 8px ${stateColor}`,
-              animation: state === 'processing' ? 'none' : undefined,
+              boxShadow: `0 0 6px ${stateColor}`,
             }}
           />
-          <span style={{ color: stateColor, fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.1em' }}>
+          <span style={{ color: stateColor, fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.1em' }}>
             {STATE_LABELS[state]}
-            {state === 'ready' && fileName && ` — ${fileName} (${fileSize}MB)`}
+            {state === 'ready' && files.length > 0 && ` — ${files.length} file${files.length > 1 ? 's' : ''} loaded`}
           </span>
         </div>
       </div>
@@ -110,7 +134,7 @@ export function HeroDropzone() {
       <div
         role="button"
         tabIndex={0}
-        aria-label="Drop a PDF here or click to select a file"
+        aria-label="Drop a PDF here or click to select files"
         onClick={() => inputRef.current?.click()}
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') inputRef.current?.click(); }}
         onDrop={onDrop}
@@ -118,14 +142,14 @@ export function HeroDropzone() {
         onDragLeave={onDragLeave}
         className={isDragOver ? 'dropzone-active' : ''}
         style={{
-          minHeight: '320px',
+          minHeight: '240px',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: '24px',
-          padding: '48px 32px',
-          borderRadius: '28px',
+          gap: '18px',
+          padding: '36px 28px',
+          borderRadius: '22px',
           border: `2px dashed ${isDragOver ? '#3B82F6' : 'rgba(255,255,255,0.12)'}`,
           background: isDragOver
             ? 'rgba(59,130,246,0.06)'
@@ -140,9 +164,9 @@ export function HeroDropzone() {
         {/* Icon */}
         <div
           style={{
-            width: 80,
-            height: 80,
-            borderRadius: '24px',
+            width: 64,
+            height: 64,
+            borderRadius: '20px',
             background: isDragOver
               ? 'rgba(59,130,246,0.2)'
               : 'rgba(34,197,94,0.12)',
@@ -151,36 +175,37 @@ export function HeroDropzone() {
             alignItems: 'center',
             justifyContent: 'center',
             transition: 'all 200ms ease',
+            flexShrink: 0,
           }}
         >
           {isDragOver
-            ? <Upload size={36} style={{ color: '#3B82F6' }} />
-            : <FileText size={36} style={{ color: '#22C55E' }} />}
+            ? <Upload size={28} style={{ color: '#3B82F6' }} />
+            : <FileText size={28} style={{ color: '#22C55E' }} />}
         </div>
 
         {/* Text */}
         <div style={{ textAlign: 'center' }}>
-          <p style={{ fontSize: '1.25rem', fontWeight: 700, color: '#F8FAFC', marginBottom: '8px' }}>
-            {isDragOver ? 'Release to upload' : 'Drop your PDF here'}
+          <p style={{ fontSize: '1.0625rem', fontWeight: 700, color: '#F8FAFC', marginBottom: '6px' }}>
+            {isDragOver ? 'Release to load files' : 'Drop your PDF here'}
           </p>
-          <p style={{ fontSize: '0.875rem', color: '#64748B' }}>
+          <p style={{ fontSize: '0.8125rem', color: '#64748B' }}>
             or{' '}
             <span style={{ color: '#22C55E', fontWeight: 600 }}>click to browse</span>
-            {' '}— supports PDF, images, Word, Excel
+            {' '}· up to {MAX_FILES} files
           </p>
         </div>
 
-        {/* Privacy inline notice */}
+        {/* Privacy notice */}
         <div
-          className="flex items-center gap-2 px-4 py-2 rounded-full"
+          className="flex items-center gap-2 px-3 py-1.5 rounded-full"
           style={{
             background: 'rgba(34,197,94,0.06)',
             border: '1px solid rgba(34,197,94,0.15)',
           }}
         >
-          <Shield size={13} style={{ color: '#22C55E', flexShrink: 0 }} />
-          <span style={{ fontSize: '0.75rem', color: '#4ADE80', fontWeight: 500 }}>
-            Files never leave your device — processed 100% locally
+          <Shield size={12} style={{ color: '#22C55E', flexShrink: 0 }} />
+          <span style={{ fontSize: '0.7rem', color: '#4ADE80', fontWeight: 500 }}>
+            Files never leave your device — 100% local processing
           </span>
         </div>
 
@@ -188,40 +213,47 @@ export function HeroDropzone() {
           ref={inputRef}
           type="file"
           accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png"
+          multiple
           onChange={onInputChange}
           style={{ display: 'none' }}
           aria-hidden="true"
         />
       </div>
 
-      {/* After file loaded: tool selection prompt */}
-      {(state === 'ready' || state === 'processing' || state === 'done') && (
+      {/* Error message */}
+      {error && (
         <div
-          className="mt-5 p-4 rounded-2xl"
-          style={{
-            background: 'rgba(34,197,94,0.08)',
-            border: '1px solid rgba(34,197,94,0.2)',
-          }}
+          className="mt-3 flex items-center gap-2 px-4 py-2 rounded-xl"
+          style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)' }}
         >
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <Cpu size={18} style={{ color: '#22C55E', flexShrink: 0 }} />
-              <div>
-                <p style={{ fontSize: '0.875rem', fontWeight: 600, color: '#F8FAFC' }}>
-                  {fileName}
-                </p>
-                <p style={{ fontSize: '0.75rem', color: '#64748B' }}>
-                  {fileSize}MB — Select a tool below to process this file
-                </p>
-              </div>
+          <span style={{ fontSize: '0.8125rem', color: '#FCA5A5' }}>{error}</span>
+        </div>
+      )}
+
+      {/* File list after loading */}
+      {hasFiles && (
+        <div
+          className="mt-4 rounded-[18px] overflow-hidden"
+          style={{ border: '1px solid rgba(34,197,94,0.2)', background: 'rgba(34,197,94,0.05)' }}
+        >
+          <div
+            className="flex items-center justify-between px-4 py-3"
+            style={{ borderBottom: '1px solid rgba(34,197,94,0.12)' }}
+          >
+            <div className="flex items-center gap-2">
+              <Cpu size={14} style={{ color: '#22C55E' }} />
+              <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#F8FAFC' }}>
+                {files.length} file{files.length > 1 ? 's' : ''} ready
+              </span>
             </div>
             <button
+              onClick={(e) => { e.stopPropagation(); scrollToTools(); }}
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px',
-                padding: '8px 18px',
-                borderRadius: '12px',
+                padding: '7px 16px',
+                borderRadius: '10px',
                 background: '#22C55E',
                 color: '#0F172A',
                 fontWeight: 700,
@@ -231,25 +263,44 @@ export function HeroDropzone() {
                 flexShrink: 0,
               }}
             >
-              Choose Tool <ArrowRight size={14} />
+              Choose Tool <ArrowRight size={13} />
             </button>
+          </div>
+          <div style={{ maxHeight: '140px', overflowY: 'auto', padding: '8px' }}>
+            {files.map((f, idx) => (
+              <div
+                key={`${f.name}-${idx}`}
+                className="flex items-center gap-2"
+                style={{ padding: '6px 8px', borderRadius: '10px' }}
+              >
+                <FileText size={13} style={{ color: '#22C55E', flexShrink: 0 }} />
+                <span style={{ flex: 1, fontSize: '0.8125rem', color: '#CBD5E1', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {f.name}
+                </span>
+                <span style={{ fontSize: '0.7rem', color: '#475569', flexShrink: 0 }}>{f.sizeMB}MB</span>
+                <button
+                  onClick={(e) => { e.stopPropagation(); removeFile(idx); }}
+                  style={{
+                    width: 20,
+                    height: 20,
+                    borderRadius: '5px',
+                    background: 'rgba(239,68,68,0.1)',
+                    border: '1px solid rgba(239,68,68,0.2)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    flexShrink: 0,
+                  }}
+                  aria-label={`Remove ${f.name}`}
+                >
+                  <X size={10} style={{ color: '#EF4444' }} />
+                </button>
+              </div>
+            ))}
           </div>
         </div>
       )}
-
-      {/* Sub-labels */}
-      <div className="flex items-center justify-center gap-6 mt-5">
-        {[
-          { icon: Shield, label: 'GDPR Compliant' },
-          { icon: Cpu,    label: 'WebAssembly Powered' },
-          { icon: Upload, label: 'No Sign-up Required' },
-        ].map(({ icon: Icon, label }) => (
-          <div key={label} className="flex items-center gap-1.5">
-            <Icon size={12} style={{ color: '#475569' }} />
-            <span style={{ fontSize: '0.7rem', color: '#475569', fontWeight: 500 }}>{label}</span>
-          </div>
-        ))}
-      </div>
     </div>
   );
 }

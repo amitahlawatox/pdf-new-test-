@@ -52,10 +52,33 @@
 - Ad units pre-sized with min-h to prevent CLS on hydration
 - Tool categories clearly separated, not dumped in one grid
 
-## Next Steps (Session 2)
+## Session 2 — 2026-06-29
+**STATUS: COMPLETE — build passing clean**
+
+### Bugs Fixed
+- [x] HeroDropzone "Choose Tool" button now scrolls to `#tools-grid` via `scrollIntoView({behavior:'smooth'})`
+- [x] HeroDropzone accepts up to 10 files (multiple=true, shows count, error on overflow)
+- [x] DropZone tool component: max 10 files validation with user-visible error message; shows file count label when multiple loaded
+
+### Design Changes
+- [x] **Hero — two-column layout**: LEFT = headline + sub + 8 popular tool pills (HeroPills client component); RIGHT = compact HeroDropzone (~280px height). Social proof numbers below both columns.
+- [x] **Hero background**: dual radial gradients (green top-left, purple bottom-right) + subtle body gradient #0F172A → #111827
+- [x] **HeroDropzone redesign**: more compact (minHeight 240px vs 320px), cleaner file list with remove buttons, error feedback, state badge
+- [x] **TrustStrip** (NEW): horizontal strip of 5 trust items — "31+ Free Tools", "Zero Uploads, Ever", "No Sign-up", "WASM Powered", "GDPR Compliant" — each with icon, label, sub-label, and vertical dividers
+- [x] **QuickTools** (NEW): 8 popular tools as large pill buttons (icon bg + name), 4-column grid on desktop, horizontal scroll on mobile
+- [x] **HeroPills** (NEW): extracted as 'use client' component to allow hover event handlers within the server-rendered page
+- [x] **ToolCard redesign**: 24px padding, rounded-[22px], 44px icon square, 2-line clamped description, format badge pill, stronger hover (translateY(-3px) + colored shadow 20% + colored border 50%)
+- [x] **ToolGrid**: added `id="tools-grid"` for scroll targeting, cards min-width bumped to 260px, gap 14px
+- [x] **Typography**: headings at -0.04em letter-spacing, body at 0.9375rem
+
+### Architecture Notes
+- page.tsx stays as Server Component — event handlers extracted to client components (HeroPills, HeroDropzone, QuickTools)
+- All new components follow existing inline-style + Tailwind-utility mix pattern
+- No new npm packages added
+
+## Next Steps (Session 3)
 - [ ] Wire real PDF-lib / pdf.js WASM engines to tool actions
 - [ ] Add tool-specific configuration (split range, compression level, etc.)
-- [ ] Add sitemap.xml + robots.txt for SEO
 - [ ] Connect Google AdSense script (replace placeholder divs)
 - [ ] Run Lighthouse audit — target CLS < 0.1, Performance > 90
 - [ ] Add blog section with SEO-optimized content stubs

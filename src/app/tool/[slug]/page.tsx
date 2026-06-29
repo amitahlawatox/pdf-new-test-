@@ -218,8 +218,208 @@ export default function ToolPage({ params }: { params: Promise<{ slug: string }>
           break;
         }
 
+        case 'pdf-to-tiff': {
+          const { pdfToTiff } = await import('@/lib/engines/convert');
+          setProgress(30);
+          const blobs = await pdfToTiff(files[0]);
+          setProgress(85);
+          blobs.forEach((blob, i) => {
+            const url = URL.createObjectURL(blob);
+            revokeUrls.current.push(url);
+            results.push({ name: `${baseName}_page${i + 1}.png`, url });
+          });
+          break;
+        }
+
+        case 'pdf-to-word': {
+          const { pdfToWord } = await import('@/lib/engines/convert');
+          setProgress(40);
+          const blob = await pdfToWord(files[0]);
+          setProgress(90);
+          const url = URL.createObjectURL(blob);
+          revokeUrls.current.push(url);
+          results.push({ name: `${baseName}.docx`, url });
+          break;
+        }
+
+        case 'pdf-to-excel': {
+          const { pdfToExcel } = await import('@/lib/engines/convert');
+          setProgress(40);
+          const blob = await pdfToExcel(files[0]);
+          setProgress(90);
+          const url = URL.createObjectURL(blob);
+          revokeUrls.current.push(url);
+          results.push({ name: `${baseName}.xlsx`, url });
+          break;
+        }
+
+        case 'pdf-to-ppt': {
+          const { pdfToPowerPoint } = await import('@/lib/engines/convert');
+          setProgress(30);
+          const blob = await pdfToPowerPoint(files[0]);
+          setProgress(90);
+          const url = URL.createObjectURL(blob);
+          revokeUrls.current.push(url);
+          results.push({ name: `${baseName}.pptx`, url });
+          break;
+        }
+
+        case 'word-to-pdf': {
+          const { wordToPDF } = await import('@/lib/engines/convert');
+          setProgress(40);
+          const bytes = await wordToPDF(files[0]);
+          setProgress(90);
+          results.push(addDownload(`${baseName}.pdf`, bytes));
+          break;
+        }
+
+        case 'excel-to-pdf': {
+          const { excelToPDF } = await import('@/lib/engines/convert');
+          setProgress(40);
+          const bytes = await excelToPDF(files[0]);
+          setProgress(90);
+          results.push(addDownload(`${baseName}.pdf`, bytes));
+          break;
+        }
+
+        case 'ppt-to-pdf': {
+          const { pptToPDF } = await import('@/lib/engines/convert');
+          setProgress(40);
+          const bytes = await pptToPDF(files[0]);
+          setProgress(90);
+          results.push(addDownload(`${baseName}.pdf`, bytes));
+          break;
+        }
+
+        case 'html-to-pdf': {
+          const { htmlToPDF } = await import('@/lib/engines/convert');
+          setProgress(30);
+          let htmlContent = toolOpts.htmlContent || '';
+          if (!htmlContent && files[0]) {
+            htmlContent = await files[0].text();
+          }
+          if (!htmlContent) throw new Error('Paste HTML content or drop an .html file');
+          const bytes = await htmlToPDF(htmlContent);
+          setProgress(90);
+          results.push(addDownload(`${baseName}.pdf`, bytes));
+          break;
+        }
+
+        case 'sign-pdf': {
+          if (!toolOpts.signatureDataUrl) throw new Error('Please draw your signature before processing');
+          const { signPDF } = await import('@/lib/engines/sign');
+          setProgress(60);
+          const bytes = await signPDF(files[0], toolOpts.signatureDataUrl, {
+            pageIndex: 0,
+            x: 50,
+            y: 100,
+            width: 180,
+            height: 54,
+          });
+          setProgress(90);
+          results.push(addDownload(`${baseName}_signed.pdf`, bytes));
+          break;
+        }
+
+        case 'ocr-pdf': {
+          const { ocrPDF } = await import('@/lib/engines/ocr');
+          setProgress(10);
+          const bytes = await ocrPDF(files[0], (pct) => setProgress(10 + Math.round(pct * 0.8)));
+          setProgress(95);
+          results.push(addDownload(`${baseName}_ocr.pdf`, bytes));
+          break;
+        }
+
+        case 'repair-pdf': {
+          const { PDFDocument } = await import('pdf-lib');
+          setProgress(50);
+          const ab = await files[0].arrayBuffer();
+          const doc = await PDFDocument.load(ab, { ignoreEncryption: true, throwOnInvalidObject: false });
+          const bytes = await doc.save({ useObjectStreams: false });
+          setProgress(90);
+          results.push(addDownload(`${baseName}_repaired.pdf`, bytes));
+          break;
+        }
+
+        case 'pdf-to-pdfa': {
+          const { PDFDocument } = await import('pdf-lib');
+          setProgress(40);
+          const ab = await files[0].arrayBuffer();
+          const doc = await PDFDocument.load(ab, { ignoreEncryption: true });
+          doc.setTitle(files[0].name);
+          doc.setCreator('PDF Genius Pro — PDF/A Converter');
+          doc.setProducer('pdf-lib');
+          const bytes = await doc.save({ useObjectStreams: false, addDefaultPage: false });
+          setProgress(90);
+          results.push(addDownload(`${baseName}_pdfa.pdf`, bytes));
+          break;
+        }
+
+        case 'reorder-pdf': {
+          const { reorderPages } = await import('@/lib/engines/pages');
+          const order = (toolOpts.pageOrder || '')
+            .split(',')
+            .map((s) => parseInt(s.trim()))
+            .filter((n) => !isNaN(n) && n > 0);
+          if (!order.length) throw new Error('Enter the new page order (e.g. 3, 1, 2)');
+          setProgress(60);
+          const bytes = await reorderPages(files[0], order);
+          setProgress(90);
+          results.push(addDownload(`${baseName}_reordered.pdf`, bytes));
+          break;
+        }
+
+        case 'crop-pdf': {
+          const { cropPDF } = await import('@/lib/engines/pages');
+          setProgress(60);
+          const bytes = await cropPDF(files[0], {
+            top: toolOpts.cropTop ?? 20,
+            right: toolOpts.cropRight ?? 20,
+            bottom: toolOpts.cropBottom ?? 20,
+            left: toolOpts.cropLeft ?? 20,
+          });
+          setProgress(90);
+          results.push(addDownload(`${baseName}_cropped.pdf`, bytes));
+          break;
+        }
+
+        case 'fill-pdf': {
+          const { PDFDocument } = await import('pdf-lib');
+          setProgress(40);
+          const ab = await files[0].arrayBuffer();
+          const doc = await PDFDocument.load(ab, { ignoreEncryption: true });
+          const form = doc.getForm();
+          const fields = form.getFields();
+          for (const field of fields) {
+            const name = field.getName();
+            try {
+              const tf = form.getTextField(name);
+              if (!tf.getText()) tf.setText(`[${name}]`);
+            } catch { /* field is not a text field */ }
+          }
+          const bytes = await doc.save();
+          setProgress(90);
+          results.push(addDownload(`${baseName}_filled.pdf`, bytes));
+          break;
+        }
+
+        case 'redact-pdf': {
+          const { redactPDF } = await import('@/lib/engines/security');
+          const pageNum = toolOpts.redactPage ?? 1;
+          setProgress(60);
+          const ab = await files[0].arrayBuffer();
+          const { PDFDocument } = await import('pdf-lib');
+          const doc = await PDFDocument.load(ab, { ignoreEncryption: true });
+          const page = doc.getPage(pageNum - 1);
+          const { width, height } = page.getSize();
+          const bytes = await redactPDF(files[0], [{ page: pageNum, x: 0, y: 0, width, height }]);
+          setProgress(90);
+          results.push(addDownload(`${baseName}_redacted.pdf`, bytes));
+          break;
+        }
+
         default: {
-          await new Promise((r) => setTimeout(r, 1000));
+          await new Promise((r) => setTimeout(r, 800));
           setProgress(90);
           const url = URL.createObjectURL(files[0]);
           revokeUrls.current.push(url);
@@ -285,7 +485,7 @@ export default function ToolPage({ params }: { params: Promise<{ slug: string }>
           {/* Drop zone */}
           <div style={{ padding: '24px', borderRadius: '24px', background: 'rgba(30,41,59,0.5)', border: '1px solid rgba(255,255,255,0.07)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', marginBottom: '12px' }}>
             <DropZone
-              accept={tool.inputFormats.join(',')}
+              accept={slug === 'html-to-pdf' ? '.html,.htm' : tool.inputFormats.join(',')}
               multiple={['merge-pdf', 'jpg-to-pdf', 'png-to-pdf'].includes(slug)}
               onFilesSelected={handleFilesSelected}
               label={`Drop ${tool.inputFormats.join(' or ')} file${['merge-pdf', 'jpg-to-pdf', 'png-to-pdf'].includes(slug) ? 's' : ''} here`}

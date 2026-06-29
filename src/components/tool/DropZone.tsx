@@ -4,6 +4,8 @@ import { useCallback, useRef, useState } from 'react';
 import { Upload, FileText, X } from 'lucide-react';
 import { StateDisplay, ProcessingState } from './StateDisplay';
 
+const MAX_FILES = 10;
+
 interface DroppedFile {
   file: File;
   id: string;
@@ -27,6 +29,7 @@ export function DropZone({
   const [dragging, setDragging] = useState(false);
   const [files, setFiles] = useState<DroppedFile[]>([]);
   const [engineState, setEngineState] = useState<ProcessingState>('idle');
+  const [fileError, setFileError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const addFiles = useCallback(
@@ -34,6 +37,11 @@ export function DropZone({
       const arr = Array.from(newFiles);
       const wrapped = arr.map((f) => ({ file: f, id: `${f.name}-${f.size}-${Date.now()}` }));
       const updated = multiple ? [...files, ...wrapped] : wrapped;
+      if (multiple && updated.length > MAX_FILES) {
+        setFileError(`Maximum ${MAX_FILES} files allowed. Please remove some files first.`);
+        return;
+      }
+      setFileError(null);
       setFiles(updated);
       setEngineState('file-loaded');
       onFilesSelected(updated.map((w) => w.file));
@@ -56,14 +64,27 @@ export function DropZone({
 
   const firstName = files[0]?.file.name;
   const firstSizeMB = files[0] ? (files[0].file.size / 1024 / 1024).toFixed(1) : undefined;
+  const fileCountLabel = files.length > 1 ? `${files.length} files loaded` : undefined;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
       <StateDisplay
         state={engineState}
-        fileName={firstName}
-        fileSizeMB={firstSizeMB}
+        fileName={fileCountLabel ?? firstName}
+        fileSizeMB={files.length > 1 ? undefined : firstSizeMB}
       />
+      {fileError && (
+        <div
+          style={{
+            padding: '10px 14px',
+            borderRadius: '12px',
+            background: 'rgba(239,68,68,0.08)',
+            border: '1px solid rgba(239,68,68,0.2)',
+          }}
+        >
+          <span style={{ fontSize: '0.8125rem', color: '#FCA5A5' }}>{fileError}</span>
+        </div>
+      )}
 
       {/* Drop zone */}
       <div

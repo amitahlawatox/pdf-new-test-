@@ -1,11 +1,12 @@
 import type { Metadata } from 'next';
 import { HeroDropzone } from '@/components/home/HeroDropzone';
+import { HeroPills } from '@/components/home/HeroPills';
 import { ToolGrid } from '@/components/home/ToolGrid';
 import { PrivacySection } from '@/components/home/PrivacySection';
+import { TrustStrip } from '@/components/home/TrustStrip';
+import { QuickTools } from '@/components/home/QuickTools';
 import { AdUnit } from '@/components/layout/AdUnit';
-import { POPULAR_TOOLS } from '@/lib/tools';
-import { ToolCard } from '@/components/home/ToolCard';
-import { ArrowRight, Star, Users, Zap } from 'lucide-react';
+import { Zap } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'PDF Genius Pro — 31+ Free PDF Tools. 100% Private.',
@@ -15,129 +16,145 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <>
-      {/* ─── HERO ─────────────────────────────────────────────── */}
+      {/* ─── HERO (Two-Column) ────────────────────────────────── */}
       <section
         style={{
-          paddingTop: '72px',
-          paddingBottom: '72px',
-          background: 'radial-gradient(ellipse 80% 60% at 50% -10%, rgba(34,197,94,0.08) 0%, transparent 70%)',
+          paddingTop: '64px',
+          paddingBottom: '64px',
+          background:
+            'radial-gradient(ellipse 70% 55% at 30% 0%, rgba(34,197,94,0.07) 0%, transparent 60%),' +
+            'radial-gradient(ellipse 60% 50% at 80% 90%, rgba(139,92,246,0.06) 0%, transparent 60%),' +
+            'linear-gradient(180deg, #0F172A 0%, #111827 100%)',
           position: 'relative',
           overflow: 'hidden',
         }}
       >
-        {/* Background grid */}
+        {/* Subtle background grid */}
         <div
           style={{
             position: 'absolute',
             inset: 0,
             backgroundImage:
-              'linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)',
+              'linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px)',
             backgroundSize: '64px 64px',
             pointerEvents: 'none',
           }}
         />
 
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 relative">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 relative">
           {/* Eyebrow */}
-          <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+          <div style={{ marginBottom: '32px' }}>
             <div
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full"
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full"
               style={{
                 background: 'rgba(34,197,94,0.08)',
                 border: '1px solid rgba(34,197,94,0.2)',
               }}
             >
-              <Zap size={13} style={{ color: '#22C55E' }} />
-              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#22C55E', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-                31+ Free Tools · Zero Uploads · GDPR Compliant
+              <Zap size={12} style={{ color: '#22C55E' }} />
+              <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#22C55E', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                100% Local · Zero Uploads · Always Free
               </span>
             </div>
           </div>
 
-          {/* Headline */}
-          <h1
-            className="text-display"
+          {/* Two-column layout */}
+          <div
             style={{
-              textAlign: 'center',
-              color: '#F8FAFC',
-              marginBottom: '20px',
+              display: 'grid',
+              gridTemplateColumns: '1fr 380px',
+              gap: '48px',
+              alignItems: 'start',
             }}
+            className="hero-grid"
           >
-            Every PDF tool you need.
-            <br />
-            <span
-              style={{
-                background: 'linear-gradient(135deg, #22C55E 0%, #4ADE80 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}
-            >
-              100% private.
-            </span>
-          </h1>
+            {/* LEFT: Headline + sub + quick tool pills (client component) */}
+            <div>
+              <h1
+                style={{
+                  fontSize: 'clamp(2rem, 4vw, 3.25rem)',
+                  fontWeight: 800,
+                  color: '#F8FAFC',
+                  lineHeight: 1.1,
+                  letterSpacing: '-0.04em',
+                  marginBottom: '20px',
+                }}
+              >
+                Every PDF tool
+                <br />
+                you need.{' '}
+                <span
+                  style={{
+                    background: 'linear-gradient(135deg, #22C55E 0%, #4ADE80 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                  }}
+                >
+                  100% private.
+                </span>
+              </h1>
 
-          {/* Sub-headline */}
-          <p
-            style={{
-              textAlign: 'center',
-              fontSize: 'clamp(1rem, 1.5vw, 1.25rem)',
-              color: '#64748B',
-              maxWidth: '580px',
-              margin: '0 auto 48px',
-              lineHeight: 1.7,
-            }}
+              <p
+                style={{
+                  fontSize: '0.9375rem',
+                  color: '#64748B',
+                  maxWidth: '460px',
+                  lineHeight: 1.75,
+                  marginBottom: '36px',
+                }}
+              >
+                Merge, split, compress, convert and sign PDFs right in your browser.
+                No sign-up. No uploads. Your files{' '}
+                <span style={{ color: '#94A3B8', fontWeight: 500 }}>never leave your device.</span>
+              </p>
+
+              {/* Quick-action tool pills — client component with hover handlers */}
+              <HeroPills />
+            </div>
+
+            {/* RIGHT: Compact Dropzone */}
+            <div style={{ paddingTop: '4px' }}>
+              <HeroDropzone />
+            </div>
+          </div>
+
+          {/* Social proof numbers — below both columns */}
+          <div
+            className="flex flex-wrap items-center gap-8 mt-12"
+            style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '24px' }}
           >
-            Merge, split, compress, convert and sign PDFs directly in your browser.
-            No sign-up. No uploads. Your files never leave your device.
-          </p>
-
-          {/* THE HERO DROPZONE */}
-          <HeroDropzone />
-
-          {/* Social proof */}
-          <div className="flex flex-wrap items-center justify-center gap-6 mt-10">
             {[
-              { icon: Users, value: '2M+', label: 'Monthly users' },
-              { icon: Star,  value: '4.9',  label: 'Average rating' },
-              { icon: Zap,   value: '31+',  label: 'Free tools' },
-            ].map(({ icon: Icon, value, label }) => (
-              <div key={label} className="flex items-center gap-2">
-                <Icon size={14} style={{ color: '#334155' }} />
-                <span style={{ fontWeight: 700, color: '#F8FAFC', fontSize: '0.9375rem' }}>{value}</span>
-                <span style={{ color: '#475569', fontSize: '0.875rem' }}>{label}</span>
+              { value: '2M+', label: 'Monthly users' },
+              { value: '4.9★', label: 'Average rating' },
+              { value: '31+', label: 'Free tools' },
+              { value: '0', label: 'Files uploaded to servers' },
+            ].map(({ value, label }) => (
+              <div key={label} style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+                <span style={{ fontWeight: 800, color: '#F8FAFC', fontSize: '1.125rem', letterSpacing: '-0.03em' }}>
+                  {value}
+                </span>
+                <span style={{ color: '#475569', fontSize: '0.8125rem' }}>{label}</span>
               </div>
             ))}
           </div>
         </div>
+
+        {/* Responsive styles for hero grid */}
+        <style>{`
+          @media (max-width: 768px) {
+            .hero-grid {
+              grid-template-columns: 1fr !important;
+            }
+          }
+        `}</style>
       </section>
 
-      {/* ─── POPULAR TOOLS ────────────────────────────────────── */}
-      <section style={{ paddingTop: '64px', paddingBottom: '48px' }}>
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <p style={{ fontSize: '0.7rem', fontWeight: 700, color: '#22C55E', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '4px' }}>
-                Most Used
-              </p>
-              <h2 style={{ fontSize: '1.375rem', fontWeight: 700, color: '#F8FAFC', letterSpacing: '-0.02em' }}>
-                Popular tools
-              </h2>
-            </div>
-            <a
-              href="#convert"
-              style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.875rem', fontWeight: 600, color: '#22C55E', textDecoration: 'none' }}
-            >
-              All tools <ArrowRight size={15} />
-            </a>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '10px' }}>
-            {POPULAR_TOOLS.map((tool) => (
-              <ToolCard key={tool.slug} tool={tool} />
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* ─── TRUST STRIP ──────────────────────────────────────── */}
+      <TrustStrip />
+
+      {/* ─── QUICK TOOLS ──────────────────────────────────────── */}
+      <QuickTools />
 
       {/* ─── MID-PAGE AD (0 CLS) ──────────────────────────────── */}
       <div className="flex justify-center py-6" style={{ background: 'rgba(8,14,29,0.6)' }}>
@@ -160,7 +177,7 @@ export default function HomePage() {
             <h2 className="text-headline" style={{ color: '#F8FAFC', marginBottom: '12px' }}>
               Three steps. Done.
             </h2>
-            <p style={{ fontSize: '1rem', color: '#64748B', maxWidth: '440px', margin: '0 auto' }}>
+            <p style={{ fontSize: '0.9375rem', color: '#64748B', maxWidth: '440px', margin: '0 auto' }}>
               No complicated settings. No waiting for uploads. Just results.
             </p>
           </div>
@@ -174,7 +191,7 @@ export default function HomePage() {
                 key={step}
                 style={{
                   padding: '28px 24px',
-                  borderRadius: '20px',
+                  borderRadius: '22px',
                   background: 'rgba(30,41,59,0.5)',
                   border: '1px solid rgba(255,255,255,0.07)',
                   backdropFilter: 'blur(8px)',
@@ -184,7 +201,7 @@ export default function HomePage() {
                 <div style={{ fontSize: '0.75rem', fontWeight: 800, color, letterSpacing: '0.1em', marginBottom: '16px', fontFamily: 'monospace' }}>
                   STEP {step}
                 </div>
-                <h3 style={{ fontSize: '1.125rem', fontWeight: 700, color: '#F8FAFC', marginBottom: '10px' }}>{title}</h3>
+                <h3 style={{ fontSize: '1.0625rem', fontWeight: 700, color: '#F8FAFC', marginBottom: '10px', letterSpacing: '-0.02em' }}>{title}</h3>
                 <p style={{ fontSize: '0.875rem', color: '#64748B', lineHeight: 1.65 }}>{desc}</p>
               </div>
             ))}

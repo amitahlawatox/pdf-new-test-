@@ -5,7 +5,7 @@ const categories = Object.keys(CATEGORY_META) as ToolCategory[];
 
 export function ToolGrid() {
   return (
-    <section style={{ paddingTop: '80px', paddingBottom: '80px' }}>
+    <section id="tools-grid" style={{ paddingTop: '80px', paddingBottom: '80px' }}>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Section header */}
         <div style={{ marginBottom: '56px', textAlign: 'center' }}>
@@ -84,8 +84,8 @@ export function ToolGrid() {
               <div
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-                  gap: '12px',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+                  gap: '14px',
                 }}
               >
                 {tools.map((tool) => (
